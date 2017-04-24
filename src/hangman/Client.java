@@ -9,53 +9,52 @@ import java.util.concurrent.SynchronousQueue;
 
 public class Client {
 
-	public static Character guess;
-	static int state;
-	static int blank;
+	private static Character guess;
+	private static int state;
+	private static int blank;
 
-	public static void main(String[] args)
-	{
+	public static void main(String[] args) throws FileNotFoundException {
 		System.out.println("Lets play HANGMAN\n\n");
-		Scanner in=new Scanner(System.in);
-		Random rand=new Random();
-		ArrayList<Character> used=new ArrayList<Character>();
-		//use client to get the word instead
-		String word=selectWord(rand);
-		int blank=word.length();
-		char[] wordChar = word.toCharArray();
-		hide(wordChar);
-		while (blank!=0 && state!=11)
-		{
-			display(word); // to edit
-
-			do{
-				guess=new Character(in.next().charAt(0));
-				if(Character.isLetter(guess)){
+		Scanner in = new Scanner(System.in);
+		Random rand = new Random();
+		ArrayList<Character> used = new ArrayList<Character>();
+		// use client to get the word instead
+		String word = selectWord(rand).toLowerCase();
+		System.out.println("Got word:" + word);
+		blank = word.length();
+		state = 5;
+		char[] wordChar = new char[blank];
+		hide(wordChar);// word hidden
+		while (blank != 0 && state != 11) {
+			display(wordChar); // to edit
+			do {
+				guess = new Character(in.next().charAt(0));
+				if (!Character.isLetter(guess)) {
 					System.out.println("Please input a character!");
+				} else if (used.contains(guess)) {
+					System.out.println(
+							"You already used " + guess + ".\n We are being nice and allowing you to re-enter");
 				}
-				else if(used.contains(guess)){
-					System.out.println("You already used "+guess+".\n We are being nice and allowing you to re-enter");
-				}
-			}while(Character.isLetter(guess)||used.contains(guess));
-			guess=Character.toLowerCase(guess);
+			} while (!Character.isLetter(guess) || used.contains(guess));
+			guess = Character.toLowerCase(guess);
 			used.add(new Character(guess));
-			reveal (wordChar, guess);
+			reveal(wordChar, guess, word);
 
-			System.out.println();
+			System.out.println("Blank: " + blank);
 			hangman(state);
 			System.out.println("Letters used: ");
-			display(charUsed); // edit
+			System.out.println(used.toString());// edit
 			System.out.print("\n\n\n\n\n\n");
 		}
-		if (state==11)
-		{        hangman(state);
-		System.out.println("Game over"+"\nThe word was: "+word);
-		}
-		else {
+		if (state == 11) {
+			hangman(state);
+			System.out.println("Game over" + "\nThe word was: " + word);
+		} else {
 			System.out.println(word);
 			hangman(state);
 			System.out.println("You win");
 		}
+		in.close();
 	}
 
 	// creates the array word
@@ -65,12 +64,19 @@ public class Client {
 		}
 	}
 
+	public static void display(char word[]) {
+		for (int i = 0; i < word.length; i++) {
+			System.out.print(word[i]);
+		}
+		System.out.println();
+	}
+
 	// reveals the letters if present
-	public static void reveal(char word[], Character guess) {
+	public static void reveal(char word[], Character guess, String cWord) {
 		int flag = 0;
 		for (int i = 0; i < word.length; i++) {
 			if (word[i] == '_') {
-				if (guess == cword[i]) {
+				if (guess == cWord.charAt(i)) {
 					word[i] = guess;
 					blank--;
 					flag++;
@@ -84,7 +90,7 @@ public class Client {
 
 	// displays the hangman
 	public static void hangman(int state) {
-		if (state == 0) { 
+		if (state == 0) {
 			System.out.println();
 			System.out.println("        ");
 			System.out.println("        ");
@@ -92,7 +98,7 @@ public class Client {
 			System.out.println("        ");
 			System.out.println("        ");
 			System.out.println("        ");
-		} else if (state == 1) {			
+		} else if (state == 1) {
 			System.out.println();
 			System.out.println("        ");
 			System.out.println("        ");
@@ -125,7 +131,7 @@ public class Client {
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
 		} else if (state == 5) {
-		System.out.println();
+			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
 			System.out.println(" |      ");
@@ -185,7 +191,7 @@ public class Client {
 
 	// selects a random word for the game
 	public static String selectWord(Random rand) throws FileNotFoundException {
-		File file = new File("WordList.txt");
+		File file = new File("src/WordList.txt");
 		Scanner reader = new Scanner(file);
 		int numWord = reader.nextInt();// number of words in the file
 		int pickNum = rand.nextInt(numWord) + 1;
