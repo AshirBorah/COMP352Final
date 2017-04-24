@@ -2,6 +2,7 @@ package hangman;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -13,7 +14,7 @@ public class Client {
 	private static int state;
 	private static int blank;
 
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
 		System.out.println("Lets play HANGMAN\n\n");
 		Scanner in = new Scanner(System.in);
 		Random rand = new Random();
@@ -26,6 +27,7 @@ public class Client {
 		char[] wordChar = new char[blank];
 		hide(wordChar);// word hidden
 		while (blank != 0 && state != 11) {
+			clearConsole();
 			display(wordChar); // to edit
 			do {
 				guess = new Character(in.next().charAt(0));
@@ -90,47 +92,48 @@ public class Client {
 
 	// displays the hangman
 	public static void hangman(int state) {
-		if (state == 0) {
-			System.out.println();
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-		} else if (state == 1) {
-			System.out.println();
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("/       ");
-		} else if (state == 2) {
-			System.out.println();
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("        ");
-			System.out.println("/ \\    ");
-		} else if (state == 3) {
-			System.out.println();
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println("/ \\    ");
-		} else if (state == 4) {
-			System.out.println();
-			System.out.println(" |---   ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println(" |      ");
-			System.out.println("/ \\    ");
-		} else if (state == 5) {
+//		if (state == 0) {
+//			System.out.println();
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//		} else if (state == 1) {
+//			System.out.println();
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("/       ");
+//		} else if (state == 2) {
+//			System.out.println();
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("        ");
+//			System.out.println("/ \\    ");
+//		} else if (state == 3) {
+//			System.out.println();
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println("/ \\    ");
+//		} else if (state == 4) {
+//			System.out.println();
+//			System.out.println(" |---   ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println(" |      ");
+//			System.out.println("/ \\    ");
+//		} else if (state == 5) {
+		if (state == 5) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -203,4 +206,7 @@ public class Client {
 		return word;
 	}
 
+	public static void clearConsole() throws IOException {
+//		Runtime.getRuntime().exec("clear");
+	}
 }
