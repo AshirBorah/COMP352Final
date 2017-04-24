@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.concurrent.SynchronousQueue;
 
 public class Client {
 
@@ -193,18 +192,7 @@ public class Client {
 	}
 
 	// selects a random word for the game
-	public static String selectWord(Random rand) throws FileNotFoundException {
-		File file = new File("src/WordList.txt");
-		Scanner reader = new Scanner(file);
-		int numWord = reader.nextInt();// number of words in the file
-		int pickNum = rand.nextInt(numWord) + 1;
-		for (int i = 0; i < pickNum; i++) {
-			reader.nextLine();
-		}
-		String word = reader.nextLine();
-		reader.close();
-		return word;
-	}
+	
 
 	public static void clearConsole() throws IOException {
 //		Runtime.getRuntime().exec("clear");

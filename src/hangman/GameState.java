@@ -5,14 +5,18 @@ import java.util.Collections;
 
 public class GameState {
 	ArrayList<Player> scoreBoard;
+	@SuppressWarnings("unused")
+	private String cword;
 
 	class Player implements Comparable<Player> {
+		String ip;
 		private String name;
 		private int score;
 
-		public Player(String name) {
+		public Player(String name, String ip) {
 			this.name = name;
 			score = 0;
+			this.ip = ip;
 		}
 
 		public String getName() {
@@ -47,17 +51,18 @@ public class GameState {
 
 	}
 
-	public GameState() {
+	public GameState(String word) {
 		scoreBoard = new ArrayList<Player>();
+		cword = word;
 	}
 
-	public void addPlayer(String name) {
-		scoreBoard.add(new Player(name));
+	public void addPlayer(String name, String ip) {
+		scoreBoard.add(new Player(name, ip));
 	}
 
-	public int findIndex(String name) {
+	public int findIndex(String ip) {
 		for (int i = 0; i < scoreBoard.size(); i++) {
-			if (scoreBoard.get(i).getName().equals(name)) {
+			if (scoreBoard.get(i).ip.equals(ip)) {
 				return i;
 			}
 		}
