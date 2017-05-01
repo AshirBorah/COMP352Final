@@ -34,6 +34,7 @@ final class HttpRequest implements Runnable {
 	}
 
 	private void processRequest() throws Exception {
+		System.out.println("Inside process");
 		// Get a reference to the socket's input and output streams
 		InputStream is = socket.getInputStream();
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
@@ -50,6 +51,7 @@ final class HttpRequest implements Runnable {
 
 		// Get the request line of the HTTP request message
 		String requestLine = br.readLine();
+		System.out.println(requestLine);
 		String tokens[] = requestLine.split(" ");
 		// request format: IP ScoreUpdate Continue
 		String ip = socket.getInetAddress().toString();
@@ -62,6 +64,7 @@ final class HttpRequest implements Runnable {
 			System.out.println(requestLine);
 		}
 		if (scoreB.containsKey(ip)) {
+
 			Player temp = scoreB.get(ip);
 			temp.updateScore(scoreUpdate);
 			scoreB.put(ip, temp);
@@ -76,11 +79,11 @@ final class HttpRequest implements Runnable {
 		String response = selectWord(rand) + "\n" + getScoreBoard();
 
 		// Send the response
+		System.out.println("Here" + response);
 		os.writeBytes(response);
 		os.writeBytes(CRLF);
 		os.close();
-		br.close();
-		socket.close(); // close socket
+
 	}
 
 	public static String selectWord(Random rand) throws FileNotFoundException {

@@ -2,13 +2,10 @@ package hangman;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Client {
@@ -19,67 +16,76 @@ public class Client {
 
 	public static void main(String[] args) throws IOException {
 		// networking code
-		Socket clientSocket = new Socket("192.168.2.13", 6789);
+		Socket clientSocket = new Socket("Localhost", 6801);
 		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
-		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 
 		System.out.println("Lets play HANGMAN\n\n");
 		System.out.println("Please enter your name:");
 		Scanner in = new Scanner(System.in);
 		String name = in.nextLine();
-		ArrayList<Character> used = new ArrayList<Character>();
-		// use server to get the word instead
-		String word = processRequest(inFromServer);
-		System.out.println("Got word:" + word);
-		blank = word.length();
-		state = 5;
-		char[] wordChar = new char[blank];
-		hide(wordChar);// word hidden
-		while (blank != 0 && state != 11) {
-			clearConsole();
-			display(wordChar); // to edit
-			do {
-				guess = new Character(in.next().charAt(0));
-				if (!Character.isLetter(guess)) {
-					System.out.println("Please input a character!");
-				} else if (used.contains(guess)) {
-					System.out.println(
-							"You already used " + guess + ".\n We are being nice and allowing you to re-enter");
-				}
-			} while (!Character.isLetter(guess) || used.contains(guess));
-			guess = Character.toLowerCase(guess);
-			used.add(new Character(guess));
-			reveal(wordChar, guess, word);
 
-			System.out.println("Blank: " + blank);
-			hangman(state);
-			System.out.println("Letters used: ");
-			System.out.println(used.toString());// edit
-			System.out.print("\n\n\n\n\n\n");
+		// use server to get the word instead
+		outToServer.writeBytes(name + " " + 0 + "\r\n");
+		boolean cont = true;
+		while (cont) {
+			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			String word = processRequest(inFromServer);
+			ArrayList<Character> used = new ArrayList<Character>();
+			System.out.println("Got word:" + word);
+			blank = word.length();
+			state = 5;
+			char[] wordChar = new char[blank];
+			hide(wordChar);// word hidden
+			while (blank != 0 && state != 11) {
+				clearConsole();
+				display(wordChar); // to edit
+				do {
+					guess = new Character(in.next().charAt(0));
+					if (!Character.isLetter(guess)) {
+						System.out.println("Please input a character!");
+					} else if (used.contains(guess)) {
+						System.out.println(
+								"You already used " + guess + ".\n We are being nice and allowing you to re-enter");
+					}
+				} while (!Character.isLetter(guess) || used.contains(guess));
+				guess = Character.toLowerCase(guess);
+				used.add(new Character(guess));
+				reveal(wordChar, guess, word);
+
+				System.out.println("Blank: " + blank);
+				hangman(state);
+				System.out.println("Letters used: ");
+				System.out.println(used.toString());// edit
+				System.out.print("\n\n");
+			}
+			if (state == 11) {
+				hangman(state);
+				System.out.println("Game over" + "\nThe word was: " + word);
+			} else {
+				System.out.println(word);
+				hangman(state);
+				System.out.println("You win");
+			}
+			int score = 12 - state;
+			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			outToServer.writeBytes(name + " " + score + "\n");
+			System.out.println("Continue?: (Y/N)");
+			cont = in.next().trim().equalsIgnoreCase("y");
 		}
-		if (state == 11) {
-			hangman(state);
-			System.out.println("Game over" + "\nThe word was: " + word);
-		} else {
-			System.out.println(word);
-			hangman(state);
-			System.out.println("You win");
-		}
-		int score = 12 - state;
-		outToServer.writeBytes(name + " " + score + "\n");
 		in.close();
 		clientSocket.close();
 	}
 
 	private static String processRequest(BufferedReader inFromServer) throws IOException {
+
 		if (inFromServer == null) {
 			throw new IllegalStateException();
 		}
 		String word = inFromServer.readLine();
 		String score = "";
 		while (score != null) {
-			score = inFromServer.readLine();
 			System.out.println(score);
+			score = inFromServer.readLine();
 		}
 		return word;
 	}

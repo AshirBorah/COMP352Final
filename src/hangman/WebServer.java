@@ -14,7 +14,7 @@ public final class WebServer {
 	public static void main(String[] args) throws Exception {
 
 		// Set the port number
-		int port = 6789;
+		int port = 6801;
 
 		// Establish the listen socket
 		ServerSocket socket = new ServerSocket(port);
