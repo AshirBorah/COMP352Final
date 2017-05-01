@@ -2,9 +2,6 @@ package hangman;
 
 import java.io.*;
 import java.util.*;
-
-import hangman.GameState.Player;
-
 import java.net.*;
 
 /**
@@ -17,11 +14,14 @@ final class HttpRequest implements Runnable {
 	final static String CRLF = "\r\n";
 	Socket socket;
 	static final boolean verbose = true;
-	static ArrayList<Player> scoreB;
+	static HashMap<String, Player> scoreB;
+	Random rand;
 
 	// Constructor
 	public HttpRequest(Socket socket) throws Exception {
 		this.socket = socket;
+		scoreB = new HashMap<String, Player>();
+		rand = new Random();
 	}
 
 	// Implement the run() method of the Runnable interface.
@@ -35,18 +35,15 @@ final class HttpRequest implements Runnable {
 
 	private void processRequest() throws Exception {
 		// Get a reference to the socket's input and output streams
-		// InputStream is = socket.getInputStream();
-		// DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+		InputStream is = socket.getInputStream();
+		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
-		GameState gs = (GameState) input.readObject();
-		scoreB = gs.getScoreBoard();
-		String ip=gs.getMyIP();
-
-		String word = "Harry"; //use selectword() here
-		
-		GameState newGs=new GameState(scoreB)
+		// ObjectInputStream input = new
+		// ObjectInputStream(socket.getInputStream());
+		// GameState gs = (GameState) input.readObject();
+		// scoreB = gs.getScoreBoard();
+		// String ip=gs.getMyIP();
+		// String word = "Harry"; //use selectword() here
 
 		// Set up input stream filters
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -55,91 +52,35 @@ final class HttpRequest implements Runnable {
 		String requestLine = br.readLine();
 		String tokens[] = requestLine.split(" ");
 		// request format: IP ScoreUpdate Continue
-		String IP = tokens[0];
+		String ip = socket.getInetAddress().toString();
 		int scoreUpdate = Integer.parseInt(tokens[1]);
-		char cont = tokens[2].charAt(0);
+		String name = tokens[0];
 
 		// Display the request line
 		if (verbose) {
 			System.out.println();
 			System.out.println(requestLine);
 		}
+		if (scoreB.containsKey(ip)) {
+			Player temp = scoreB.get(ip);
+			temp.updateScore(scoreUpdate);
+			scoreB.put(ip, temp);
+		} else {
+			Player temp = new Player(name, ip, scoreUpdate);
+			temp.setName(name);
+			scoreB.put(ip, temp);
+		}
 		// Get and display the header lines.
-		String headerLine = null;
-		while ((headerLine = br.readLine()).length() != 0) {
-			System.out.println(headerLine);
-		}
-
-		// // Extract the filename from the requested line.
-		// StringTokenizer tokens = new StringTokenizer(requestLine);
-		// tokens.nextToken();
-		// String fileName = tokens.nextToken();
-
-		// Open the requested file
-		FileInputStream fis = null;
-		boolean fileExists = true;
-		try {
-			fis = new FileInputStream(fileName);
-		} catch (FileNotFoundException e) {
-			fileExists = false;
-		}
 
 		// Construct the response message
-		String statusLine = null;
-		String contentTypeLine = null;
-		String entityBody = null;
-		if (fileExists) {
-			statusLine = "HTTP/1.0 200 OK" + CRLF;
-			contentTypeLine = "Content-type: " + contentType(fileName) + CRLF;
-		} else {
-			statusLine = "HTTP/1.0 404 Not Found" + CRLF;
-			contentTypeLine = "Content-Type: text/html" + CRLF;
-			entityBody = "<HTML>" + "<HEAD><TITLE>Not Found</TITLE></HEAD>" + "<BODY>Not Found</BODY></HTML>";
-		}
+		String response = selectWord(rand) + "\n" + getScoreBoard();
 
-		// Send the status line.
-		os.writeBytes(statusLine);
-		// Send the content type line
-		os.writeBytes(contentTypeLine);
-		// Send a blank line to indicate the end of header lines.
+		// Send the response
+		os.writeBytes(response);
 		os.writeBytes(CRLF);
-		// Send the entity body
-		if (fileExists) {
-			sendBytes(fis, os);
-			fis.close();
-		} else {
-			os.writeBytes(entityBody);
-		}
 		os.close();
 		br.close();
 		socket.close(); // close socket
-	}
-
-	private static void sendBytes(FileInputStream fis, OutputStream os) throws Exception {
-		// Construc a 1K buffer to hold bytes on their way to the socket
-		byte[] buffer = new byte[1024];
-		int bytes = 0;
-
-		// Copy requested file into the socket's output stream
-		while ((bytes = fis.read(buffer)) != -1) {
-			os.write(buffer, 0, bytes);
-		}
-	}
-
-	private static String contentType(String fileName) {
-		if (fileName.endsWith(".htm") || fileName.endsWith(".html")) {
-			return "text/html";
-		}
-		if (fileName.endsWith(".jpeg")) { // picture
-			return "image/jpeg";
-		}
-		if (fileName.endsWith(".gif")) { // gif
-			return "image/gif";
-		}
-		if (fileName.endsWith(".mp3")) { // audio
-			return "audio/mpeg";
-		}
-		return "application/octet-stream";
 	}
 
 	public static String selectWord(Random rand) throws FileNotFoundException {
@@ -153,5 +94,18 @@ final class HttpRequest implements Runnable {
 		String word = reader.nextLine();
 		reader.close();
 		return word;
+	}
+
+	public String getScoreBoard() {
+		StringBuilder sb = new StringBuilder();
+		ArrayList<Player> pList = new ArrayList<Player>();
+		for (String pl : scoreB.keySet()) {
+			pList.add(scoreB.get(pl));
+		}
+		Collections.sort(pList);
+		for (int i = 0; i < pList.size(); i++) {
+			sb.append(pList.get(i).toString() + "\n");
+		}
+		return sb.toString();
 	}
 }

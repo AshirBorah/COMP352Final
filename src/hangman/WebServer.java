@@ -1,8 +1,6 @@
 package hangman;
 
-import java.io.*;
 import java.net.*;
-import java.util.*;
 
 /**
  * Multi-threaded web server that runs on port 6789 This port number is

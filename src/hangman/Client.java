@@ -1,8 +1,12 @@
 package hangman;
 
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Scanner;
@@ -14,12 +18,18 @@ public class Client {
 	private static int blank;
 
 	public static void main(String[] args) throws IOException {
+		// networking code
+		Socket clientSocket = new Socket("192.168.2.13", 6789);
+		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+		BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
 		System.out.println("Lets play HANGMAN\n\n");
+		System.out.println("Please enter your name:");
 		Scanner in = new Scanner(System.in);
-		Random rand = new Random();
+		String name = in.nextLine();
 		ArrayList<Character> used = new ArrayList<Character>();
 		// use server to get the word instead
-		String word = selectWord(rand).toLowerCase();
+		String word = processRequest(inFromServer);
 		System.out.println("Got word:" + word);
 		blank = word.length();
 		state = 5;
@@ -55,7 +65,23 @@ public class Client {
 			hangman(state);
 			System.out.println("You win");
 		}
+		int score = 12 - state;
+		outToServer.writeBytes(name + " " + score + "\n");
 		in.close();
+		clientSocket.close();
+	}
+
+	private static String processRequest(BufferedReader inFromServer) throws IOException {
+		if (inFromServer == null) {
+			throw new IllegalStateException();
+		}
+		String word = inFromServer.readLine();
+		String score = "";
+		while (score != null) {
+			score = inFromServer.readLine();
+			System.out.println(score);
+		}
+		return word;
 	}
 
 	// creates the array word
