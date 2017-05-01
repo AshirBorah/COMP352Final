@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class GameState {
-	ArrayList<Player> scoreBoard;
-	@SuppressWarnings("unused")
+	private ArrayList<Player> scoreBoard;
 	private String cword;
+	private String myIP;
+	private int uScore;
 
 	class Player implements Comparable<Player> {
 		String ip;
@@ -51,9 +52,25 @@ public class GameState {
 
 	}
 
-	public GameState(String word) {
+	public ArrayList<Player> getScoreBoard() {
+		return scoreBoard;
+	}
+
+	public String getMyIP() {
+		return myIP;
+	}
+
+	public GameState(String word, String ip) {
 		scoreBoard = new ArrayList<Player>();
 		cword = word;
+		myIP = ip;
+	}
+
+	@SuppressWarnings("unchecked")
+	public GameState(String word, ArrayList<Player> scorebd, String ip) {
+		scoreBoard = (ArrayList<Player>) scorebd.clone();
+		cword = word;
+		myIP = ip;
 	}
 
 	public void addPlayer(String name, String ip) {
@@ -75,5 +92,8 @@ public class GameState {
 			scoreBoard.get(index).setScore(scoreBoard.get(index).getScore() + score);
 		}
 		Collections.sort(scoreBoard);
+		else{
+			System.err.println("Player name found: "+name);
+		}
 	}
 }

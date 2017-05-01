@@ -18,7 +18,7 @@ public class Client {
 		Scanner in = new Scanner(System.in);
 		Random rand = new Random();
 		ArrayList<Character> used = new ArrayList<Character>();
-		// use client to get the word instead
+		// use server to get the word instead
 		String word = selectWord(rand).toLowerCase();
 		System.out.println("Got word:" + word);
 		blank = word.length();
@@ -91,47 +91,47 @@ public class Client {
 
 	// displays the hangman
 	public static void hangman(int state) {
-//		if (state == 0) {
-//			System.out.println();
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//		} else if (state == 1) {
-//			System.out.println();
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("/       ");
-//		} else if (state == 2) {
-//			System.out.println();
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("        ");
-//			System.out.println("/ \\    ");
-//		} else if (state == 3) {
-//			System.out.println();
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println("/ \\    ");
-//		} else if (state == 4) {
-//			System.out.println();
-//			System.out.println(" |---   ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println(" |      ");
-//			System.out.println("/ \\    ");
-//		} else if (state == 5) {
+		// if (state == 0) {
+		// System.out.println();
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// } else if (state == 1) {
+		// System.out.println();
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println("/ ");
+		// } else if (state == 2) {
+		// System.out.println();
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println(" ");
+		// System.out.println("/ \\ ");
+		// } else if (state == 3) {
+		// System.out.println();
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println("/ \\ ");
+		// } else if (state == 4) {
+		// System.out.println();
+		// System.out.println(" |--- ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println(" | ");
+		// System.out.println("/ \\ ");
+		// } else if (state == 5) {
 		if (state == 5) {
 			System.out.println();
 			System.out.println(" |---   ");
@@ -192,9 +192,8 @@ public class Client {
 	}
 
 	// selects a random word for the game
-	
 
 	public static void clearConsole() throws IOException {
-//		Runtime.getRuntime().exec("clear");
+		// Runtime.getRuntime().exec("clear");
 	}
 }

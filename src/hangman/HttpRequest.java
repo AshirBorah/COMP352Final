@@ -2,6 +2,9 @@ package hangman;
 
 import java.io.*;
 import java.util.*;
+
+import hangman.GameState.Player;
+
 import java.net.*;
 
 /**
@@ -14,6 +17,7 @@ final class HttpRequest implements Runnable {
 	final static String CRLF = "\r\n";
 	Socket socket;
 	static final boolean verbose = true;
+	static ArrayList<Player> scoreB;
 
 	// Constructor
 	public HttpRequest(Socket socket) throws Exception {
@@ -31,14 +35,18 @@ final class HttpRequest implements Runnable {
 
 	private void processRequest() throws Exception {
 		// Get a reference to the socket's input and output streams
-		InputStream is = socket.getInputStream();
+		// InputStream is = socket.getInputStream();
 		// DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ObjectOutputStream oos = new ObjectOutputStream(baos);
-		// Lines to send object to clients
-		// oos.writeObject(objectToSend);
-		// oos.close();
+		ObjectInputStream input = new ObjectInputStream(socket.getInputStream());
+		GameState gs = (GameState) input.readObject();
+		scoreB = gs.getScoreBoard();
+		String ip=gs.getMyIP();
+
+		String word = "Harry"; //use selectword() here
+		
+		GameState newGs=new GameState(scoreB)
 
 		// Set up input stream filters
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
