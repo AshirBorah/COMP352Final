@@ -58,8 +58,6 @@ final class HttpRequest implements Runnable {
 			scoreB.put(socket.getInetAddress().toString(), score + Integer.parseInt(requestLine));
 		}
 
-		// Get and display the header lines.
-
 		// Construct the response message
 		String response = selectWord(rand) + "\n" + getScoreBoard();
 
@@ -71,6 +69,12 @@ final class HttpRequest implements Runnable {
 		os.close();
 	}
 
+	/**
+	 * Randomly select the word from a dictionary for the game
+	 * @param rand random generator to select the word
+	 * @return the word that was selected from the dictionary
+	 * @throws FileNotFoundException if the dictionary is not found
+	 */
 	public static String selectWord(Random rand) throws FileNotFoundException {
 		File file = new File("WordList.txt");
 		Scanner reader = new Scanner(file);
@@ -84,6 +88,10 @@ final class HttpRequest implements Runnable {
 		return word;
 	}
 
+	/**
+	 * Get the current scoreboard
+	 * @return the current scoreboard
+	 */
 	public String getScoreBoard() {
 		StringBuilder sb = new StringBuilder();
 		ArrayList<String> pList = new ArrayList<String>();

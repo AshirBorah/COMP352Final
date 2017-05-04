@@ -4,8 +4,7 @@ import java.net.*;
 import java.util.HashMap;
 
 /**
- * Multi-threaded web server that runs on port 6789 This port number is
- * pre-determined
+ * Multi-threaded web server that runs on a specified port number
  * 
  * @author Daniel Ngo && Ashir Borah
  */

@@ -10,12 +10,18 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Client class that handles client side of the hangman game
+ * Display the current state of the hangman and number of blank space left
+ * that still needed to be guessed.
+ * @author Ashir Borah and Daniel Ngo
+ *
+ */
 public class Client {
 
 	private static Character guess;
 	private static int state;
 	private static int blank;
-	// private static DataOutputStream outToServer;
 
 	public static void main(String[] args) throws IOException {
 		// networking code
@@ -31,19 +37,16 @@ public class Client {
 
 		// use server to get the word instead
 		outToServer.writeBytes("n " + name + "\r\n");
-		// writeToServer("n " + name, host, port);
 		boolean cont = true;
 		while (cont) {
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String word = processRequest(inFromServer);
 			clientSocket.close();
 			ArrayList<Character> used = new ArrayList<Character>();
-			//System.out.println("Got word: " + word);
 			blank = word.length();
 			state = 5;
 			char[] wordChar = new char[blank];
 			hide(wordChar);// word hidden
-			// outToServer.writeBytes("Test");
 			while (blank != 0 && state != 11) {
 				clearConsole();
 				display(wordChar); // to edit
@@ -107,7 +110,6 @@ public class Client {
 					System.err.println(e);
 				}
 			}
-			// writeToServer(score + "", host, port);
 			System.out.println("Continue?: (Y/N)");
 			cont = in.next().trim().equalsIgnoreCase("y");
 			System.out.println(cont);
@@ -145,7 +147,10 @@ public class Client {
 		return word;
 	}
 
-	// creates the array word
+	/**
+	 * Hide the word, replace each character with a "_"
+	 * @param word the word that needed to be replaced
+	 */
 	public static void hide(char word[]) {
 		for (int i = 0; i < word.length; i++) {
 			word[i] = '_';
@@ -176,7 +181,10 @@ public class Client {
 		}
 	}
 
-	// displays the hangman
+	/**
+	 * Displays the hangman
+	 * @param state current state of the game
+	 */
 	public static void hangman(int state) {
 		// if (state == 0) {
 		// System.out.println();
