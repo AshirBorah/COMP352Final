@@ -37,7 +37,7 @@ final class HttpRequest implements Runnable {
 	}
 
 	private void processRequest() throws Exception {
-		System.out.println("Inside process");
+		System.out.println("Processing request");
 		// Get a reference to the socket's input and output streams
 		InputStream is = socket.getInputStream();
 		// Set up input stream filters
@@ -64,7 +64,7 @@ final class HttpRequest implements Runnable {
 		String response = selectWord(rand) + "\n" + getScoreBoard();
 
 		// Send the response
-		System.out.println("Here" + response);
+		System.out.println("Sending: " + response);
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 		os.writeBytes(response + CRLF);
 		// os.flush();

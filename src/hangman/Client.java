@@ -1,6 +1,8 @@
 package hangman;
 
 import java.io.BufferedReader;
+import java.io.*;
+import javax.sound.sampled.*;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -36,7 +38,7 @@ public class Client {
 			String word = processRequest(inFromServer);
 			clientSocket.close();
 			ArrayList<Character> used = new ArrayList<Character>();
-			System.out.println("Got word: " + word);
+			//System.out.println("Got word: " + word);
 			blank = word.length();
 			state = 5;
 			char[] wordChar = new char[blank];
@@ -71,8 +73,40 @@ public class Client {
 				hangman(state);
 				System.out.println("You win");
 			}
-			int score = 12 - state;
-
+			int score = 11 - state;
+			if (score > 0) {
+				try {
+					File yourFile = new File("applause-2.wav");
+					AudioInputStream stream;
+					AudioFormat format;
+					DataLine.Info info;
+					Clip clip;
+					stream = AudioSystem.getAudioInputStream(yourFile);
+					format = stream.getFormat();
+					info = new DataLine.Info(Clip.class, format);
+					clip = (Clip) AudioSystem.getLine(info);
+					clip.open(stream);
+					clip.start();
+				} catch (Exception e) {
+					System.err.println(e);
+				}
+			} else {
+				try {
+					File yourFile = new File("maybe-next-time.wav");
+					AudioInputStream stream;
+					AudioFormat format;
+					DataLine.Info info;
+					Clip clip;
+					stream = AudioSystem.getAudioInputStream(yourFile);
+					format = stream.getFormat();
+					info = new DataLine.Info(Clip.class, format);
+					clip = (Clip) AudioSystem.getLine(info);
+					clip.open(stream);
+					clip.start();
+				} catch (Exception e) {
+					System.err.println(e);
+				}
+			}
 			// writeToServer(score + "", host, port);
 			System.out.println("Continue?: (Y/N)");
 			cont = in.next().trim().equalsIgnoreCase("y");
@@ -82,7 +116,9 @@ public class Client {
 			outToServer.writeBytes(score + "" + "\r\n");
 		}
 		in.close();
+		outToServer.close();
 		clientSocket.close();
+		System.out.println("Thank you for playing");
 	}
 
 	// private static void writeToServer(String str, String host, int port)
