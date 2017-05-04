@@ -14,13 +14,16 @@ final class HttpRequest implements Runnable {
 	final static String CRLF = "\r\n";
 	Socket socket;
 	static final boolean verbose = true;
-	static HashMap<String, Player> scoreB;
+	HashMap<String, Integer> scoreB;
+	HashMap<String, String> nameDB;
 	Random rand;
 
 	// Constructor
-	public HttpRequest(Socket socket) throws Exception {
+	public HttpRequest(Socket socket, HashMap<String, Integer> scoreB2, HashMap<String, String> nameDB2)
+			throws Exception {
 		this.socket = socket;
-		scoreB = new HashMap<String, Player>();
+		this.scoreB = scoreB2;
+		this.nameDB = nameDB2;
 		rand = new Random();
 	}
 
@@ -37,42 +40,24 @@ final class HttpRequest implements Runnable {
 		System.out.println("Inside process");
 		// Get a reference to the socket's input and output streams
 		InputStream is = socket.getInputStream();
-		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
-
-		// ObjectInputStream input = new
-		// ObjectInputStream(socket.getInputStream());
-		// GameState gs = (GameState) input.readObject();
-		// scoreB = gs.getScoreBoard();
-		// String ip=gs.getMyIP();
-		// String word = "Harry"; //use selectword() here
-
 		// Set up input stream filters
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
 		// Get the request line of the HTTP request message
 		String requestLine = br.readLine();
+		String[] tokens = requestLine.split(" ");
 		System.out.println(requestLine);
-		String tokens[] = requestLine.split(" ");
 		// request format: IP ScoreUpdate Continue
-		String ip = socket.getInetAddress().toString();
-		int scoreUpdate = Integer.parseInt(tokens[1]);
-		String name = tokens[0];
-
-		// Display the request line
-		if (verbose) {
-			System.out.println();
-			System.out.println(requestLine);
-		}
-		if (scoreB.containsKey(ip)) {
-
-			Player temp = scoreB.get(ip);
-			temp.updateScore(scoreUpdate);
-			scoreB.put(ip, temp);
+		System.out.println(getScoreBoard());
+		if (requestLine.charAt(0) == 'n') {
+			scoreB.put(socket.getInetAddress().toString(), 0);
+			nameDB.put(socket.getInetAddress().toString(), tokens[1]);
 		} else {
-			Player temp = new Player(name, ip, scoreUpdate);
-			temp.setName(name);
-			scoreB.put(ip, temp);
+			System.out.println("Inside cond");
+			int score = scoreB.get(socket.getInetAddress().toString());
+			System.out.println(score);
+			scoreB.put(socket.getInetAddress().toString(), score + Integer.parseInt(requestLine));
 		}
+
 		// Get and display the header lines.
 
 		// Construct the response message
@@ -80,14 +65,14 @@ final class HttpRequest implements Runnable {
 
 		// Send the response
 		System.out.println("Here" + response);
-		os.writeBytes(response);
-		os.writeBytes(CRLF);
+		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
+		os.writeBytes(response + CRLF);
+		// os.flush();
 		os.close();
-
 	}
 
 	public static String selectWord(Random rand) throws FileNotFoundException {
-		File file = new File("src/WordList.txt");
+		File file = new File("WordList.txt");
 		Scanner reader = new Scanner(file);
 		int numWord = reader.nextInt();// number of words in the file
 		int pickNum = rand.nextInt(numWord) + 1;
@@ -101,9 +86,10 @@ final class HttpRequest implements Runnable {
 
 	public String getScoreBoard() {
 		StringBuilder sb = new StringBuilder();
-		ArrayList<Player> pList = new ArrayList<Player>();
+		ArrayList<String> pList = new ArrayList<String>();
+		ArrayList<String> sbList = new ArrayList<String>();
 		for (String pl : scoreB.keySet()) {
-			pList.add(scoreB.get(pl));
+			pList.add(nameDB.get(pl) + " " + scoreB.get(pl) + "\n");
 		}
 		Collections.sort(pList);
 		for (int i = 0; i < pList.size(); i++) {

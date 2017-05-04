@@ -13,10 +13,13 @@ public class Client {
 	private static Character guess;
 	private static int state;
 	private static int blank;
+	// private static DataOutputStream outToServer;
 
 	public static void main(String[] args) throws IOException {
 		// networking code
-		Socket clientSocket = new Socket("Localhost", 6801);
+		String host = args[0];
+		int port = Integer.parseInt(args[1]);
+		Socket clientSocket = new Socket(args[0], Integer.parseInt(args[1]));
 		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 
 		System.out.println("Lets play HANGMAN\n\n");
@@ -25,17 +28,20 @@ public class Client {
 		String name = in.nextLine();
 
 		// use server to get the word instead
-		outToServer.writeBytes(name + " " + 0 + "\r\n");
+		outToServer.writeBytes("n " + name + "\r\n");
+		// writeToServer("n " + name, host, port);
 		boolean cont = true;
 		while (cont) {
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			String word = processRequest(inFromServer);
+			clientSocket.close();
 			ArrayList<Character> used = new ArrayList<Character>();
-			System.out.println("Got word:" + word);
+			System.out.println("Got word: " + word);
 			blank = word.length();
 			state = 5;
 			char[] wordChar = new char[blank];
 			hide(wordChar);// word hidden
+			// outToServer.writeBytes("Test");
 			while (blank != 0 && state != 11) {
 				clearConsole();
 				display(wordChar); // to edit
@@ -51,7 +57,6 @@ public class Client {
 				guess = Character.toLowerCase(guess);
 				used.add(new Character(guess));
 				reveal(wordChar, guess, word);
-
 				System.out.println("Blank: " + blank);
 				hangman(state);
 				System.out.println("Letters used: ");
@@ -67,14 +72,28 @@ public class Client {
 				System.out.println("You win");
 			}
 			int score = 12 - state;
-			outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			outToServer.writeBytes(name + " " + score + "\n");
+
+			// writeToServer(score + "", host, port);
 			System.out.println("Continue?: (Y/N)");
 			cont = in.next().trim().equalsIgnoreCase("y");
+			System.out.println(cont);
+			clientSocket = new Socket(host, port);
+			outToServer = new DataOutputStream(clientSocket.getOutputStream());
+			outToServer.writeBytes(score + "" + "\r\n");
 		}
 		in.close();
 		clientSocket.close();
 	}
+
+	// private static void writeToServer(String str, String host, int port)
+	// throws IOException {
+	// Socket clientSocket = new Socket(host, port);
+	// DataOutputStream outToServer = new
+	// DataOutputStream(clientSocket.getOutputStream());
+	// outToServer.writeBytes(str + "\r\n");
+	// outToServer.close();
+	// clientSocket.close();
+	// }
 
 	private static String processRequest(BufferedReader inFromServer) throws IOException {
 
