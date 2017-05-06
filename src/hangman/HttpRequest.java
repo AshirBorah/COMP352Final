@@ -5,7 +5,7 @@ import java.util.*;
 import java.net.*;
 
 /**
- * Handling HTTP Request for the multi-threaded web server
+ * Handling request for the multi-threaded server
  * 
  * @author Daniel Ngo && Ashir Borah
  */
@@ -18,7 +18,13 @@ final class HttpRequest implements Runnable {
 	HashMap<String, String> nameDB;
 	Random rand;
 
-	// Constructor
+	/**
+	 * Constructor for the HTTP Request class
+	 * @param socket the socket that is currently holding communication between server and clients
+	 * @param scoreB2 the HashMap that holds score each each player
+	 * @param nameDB2 the HashMap that holds name of each player
+	 * @throws Exception 
+	 */
 	public HttpRequest(Socket socket, HashMap<String, Integer> scoreB2, HashMap<String, String> nameDB2)
 			throws Exception {
 		this.socket = socket;
@@ -38,7 +44,7 @@ final class HttpRequest implements Runnable {
 
 	private void processRequest() throws Exception {
 		System.out.println("Processing request");
-		// Get a reference to the socket's input and output streams
+		// Get a reference to the socket's input stream
 		InputStream is = socket.getInputStream();
 		// Set up input stream filters
 		BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -65,7 +71,6 @@ final class HttpRequest implements Runnable {
 		System.out.println("Sending: " + response);
 		DataOutputStream os = new DataOutputStream(socket.getOutputStream());
 		os.writeBytes(response + CRLF);
-		// os.flush();
 		os.close();
 	}
 
@@ -89,13 +94,12 @@ final class HttpRequest implements Runnable {
 	}
 
 	/**
-	 * Get the current scoreboard
+	 * Get the current scoreboard that contains name of each player and their score
 	 * @return the current scoreboard
 	 */
 	public String getScoreBoard() {
 		StringBuilder sb = new StringBuilder();
 		ArrayList<String> pList = new ArrayList<String>();
-		ArrayList<String> sbList = new ArrayList<String>();
 		for (String pl : scoreB.keySet()) {
 			pList.add(nameDB.get(pl) + " " + scoreB.get(pl) + "\n");
 		}

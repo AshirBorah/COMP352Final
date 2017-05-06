@@ -12,7 +12,7 @@ import java.util.Scanner;
 
 /**
  * Client class that handles client side of the hangman game
- * Display the current state of the hangman and number of blank space left
+ * Display the current state of the hangman and number of blank spaces left
  * that still needed to be guessed.
  * @author Ashir Borah and Daniel Ngo
  *
@@ -25,60 +25,64 @@ public class Client {
 
 	public static void main(String[] args) throws IOException {
 		// networking code
+		// get the ip of the server
 		String host = args[0];
+		// get the port number 
 		int port = Integer.parseInt(args[1]);
-		Socket clientSocket = new Socket(args[0], Integer.parseInt(args[1]));
+		Socket clientSocket = new Socket(host, port);
+		// get the output stream of the socket
 		DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
 
 		System.out.println("Lets play HANGMAN\n\n");
 		System.out.println("Please enter your name:");
 		Scanner in = new Scanner(System.in);
 		String name = in.nextLine();
-
-		// use server to get the word instead
+		// Send the player's name to the server
 		outToServer.writeBytes("n " + name + "\r\n");
 		boolean cont = true;
 		while (cont) {
+			// get the input stream from server of the socket
 			BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			// get the word from the server and print out the current score board
 			String word = processRequest(inFromServer);
 			clientSocket.close();
+			// Initialize the ArrayList which holds character that has already been used.
 			ArrayList<Character> used = new ArrayList<Character>();
 			blank = word.length();
-			state = 5;
-			char[] wordChar = new char[blank];
+			state = 1;
+			char[] wordChar = new char[blank]; 
 			hide(wordChar);// word hidden
-			while (blank != 0 && state != 11) {
-				clearConsole();
-				display(wordChar); // to edit
+			while (blank != 0 && state != 7) {
+				display(wordChar); // display the current state of the hidden word
 				do {
 					guess = new Character(in.next().charAt(0));
-					if (!Character.isLetter(guess)) {
+					if (!Character.isLetter(guess)) { // if the user doenst input a letter
 						System.out.println("Please input a character!");
-					} else if (used.contains(guess)) {
+					} else if (used.contains(guess)) { // if the user input a letter that has already been used
 						System.out.println(
 								"You already used " + guess + ".\n We are being nice and allowing you to re-enter");
 					}
 				} while (!Character.isLetter(guess) || used.contains(guess));
 				guess = Character.toLowerCase(guess);
-				used.add(new Character(guess));
-				reveal(wordChar, guess, word);
-				System.out.println("Blank: " + blank);
-				hangman(state);
-				System.out.println("Letters used: ");
-				System.out.println(used.toString());// edit
+				used.add(new Character(guess)); // add the letter to list of used-letter
+				reveal(wordChar, guess, word); // reveal the guessed letter if it's in the correct word
+				System.out.println("Blank: " + blank); // print out the number of blank spaces left
+				hangman(state); // show the current state of the hangman.
+				System.out.println("Letters used: "); 
+				System.out.println(used.toString());// show the list of used letters
 				System.out.print("\n\n");
 			}
-			if (state == 11) {
-				hangman(state);
-				System.out.println("Game over" + "\nThe word was: " + word);
-			} else {
-				System.out.println(word);
-				hangman(state);
-				System.out.println("You win");
+			if (state == 7) { // if the hangman is fully displayed
+				hangman(state); // display the hangman 
+				System.out.println("Game over" + "\nThe word was: " + word); // Game is over, print out the correct word
+			} else { // if the word has been successfully guessed
+				System.out.println(word); // print out the word
+				hangman(state); // display the final state of the hangman
+				System.out.println("You win"); // player wins
 			}
-			int score = 11 - state;
-			if (score > 0) {
-				try {
+			int score = 7 - state; // initialize the score of each player depending on the current state of the hangman 
+			if (score > 0) { // If the player wins
+				try { // play the winning-applause sound file
 					File yourFile = new File("applause-2.wav");
 					AudioInputStream stream;
 					AudioFormat format;
@@ -93,8 +97,8 @@ public class Client {
 				} catch (Exception e) {
 					System.err.println(e);
 				}
-			} else {
-				try {
+			} else { // if the player loses
+				try { // play the losing sound file
 					File yourFile = new File("maybe-next-time.wav");
 					AudioInputStream stream;
 					AudioFormat format;
@@ -110,12 +114,15 @@ public class Client {
 					System.err.println(e);
 				}
 			}
+			// Asking if the player want to play the game again
 			System.out.println("Continue?: (Y/N)");
 			cont = in.next().trim().equalsIgnoreCase("y");
-			System.out.println(cont);
+			System.out.println(cont); 
+			// creates new socket that connects to the server
 			clientSocket = new Socket(host, port);
+			// Get the output stream to the server
 			outToServer = new DataOutputStream(clientSocket.getOutputStream());
-			outToServer.writeBytes(score + "" + "\r\n");
+			outToServer.writeBytes(score + "" + "\r\n"); // update the score to the server
 		}
 		in.close();
 		outToServer.close();
@@ -123,16 +130,8 @@ public class Client {
 		System.out.println("Thank you for playing");
 	}
 
-	// private static void writeToServer(String str, String host, int port)
-	// throws IOException {
-	// Socket clientSocket = new Socket(host, port);
-	// DataOutputStream outToServer = new
-	// DataOutputStream(clientSocket.getOutputStream());
-	// outToServer.writeBytes(str + "\r\n");
-	// outToServer.close();
-	// clientSocket.close();
-	// }
-
+	// Get the word and the current scoreboard from the server
+	// return the picked word
 	private static String processRequest(BufferedReader inFromServer) throws IOException {
 
 		if (inFromServer == null) {
@@ -157,6 +156,10 @@ public class Client {
 		}
 	}
 
+	/**
+	 * Display the current state of the hidden word
+	 * @param word the hidden word broken into array of characters
+	 */
 	public static void display(char word[]) {
 		for (int i = 0; i < word.length; i++) {
 			System.out.print(word[i]);
@@ -164,7 +167,12 @@ public class Client {
 		System.out.println();
 	}
 
-	// reveals the letters if present
+	/**
+	 * Reveal the character if it is present in the correct word
+	 * @param word the current state of the hidden word
+	 * @param guess the letter that the player has guessed
+	 * @param cWord the correct word
+	 */
 	public static void reveal(char word[], Character guess, String cWord) {
 		int flag = 0;
 		for (int i = 0; i < word.length; i++) {
@@ -186,48 +194,7 @@ public class Client {
 	 * @param state current state of the game
 	 */
 	public static void hangman(int state) {
-		// if (state == 0) {
-		// System.out.println();
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// } else if (state == 1) {
-		// System.out.println();
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println("/ ");
-		// } else if (state == 2) {
-		// System.out.println();
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println(" ");
-		// System.out.println("/ \\ ");
-		// } else if (state == 3) {
-		// System.out.println();
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println("/ \\ ");
-		// } else if (state == 4) {
-		// System.out.println();
-		// System.out.println(" |--- ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println(" | ");
-		// System.out.println("/ \\ ");
-		// } else if (state == 5) {
-		if (state == 5) {
+		if (state == 1) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -235,7 +202,7 @@ public class Client {
 			System.out.println(" |      ");
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
-		} else if (state == 6) {
+		} else if (state == 2) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -243,7 +210,7 @@ public class Client {
 			System.out.println(" |      ");
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
-		} else if (state == 7) {
+		} else if (state == 3) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -251,7 +218,7 @@ public class Client {
 			System.out.println(" |   |  ");
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
-		} else if (state == 8) {
+		} else if (state == 4) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -259,7 +226,7 @@ public class Client {
 			System.out.println(" |  /|  ");
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
-		} else if (state == 9) {
+		} else if (state == 5) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -267,7 +234,7 @@ public class Client {
 			System.out.println(" |  /|\\");
 			System.out.println(" |      ");
 			System.out.println("/ \\    ");
-		} else if (state == 10) {
+		} else if (state == 6) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -275,7 +242,7 @@ public class Client {
 			System.out.println(" |  /|\\");
 			System.out.println(" |  /   ");
 			System.out.println("/ \\    ");
-		} else if (state == 11) {
+		} else if (state == 7) {
 			System.out.println();
 			System.out.println(" |---   ");
 			System.out.println(" |   |  ");
@@ -284,11 +251,5 @@ public class Client {
 			System.out.println(" |  / \\");
 			System.out.println("/ \\    ");
 		}
-	}
-
-	// selects a random word for the game
-
-	public static void clearConsole() throws IOException {
-		// Runtime.getRuntime().exec("clear");
 	}
 }
