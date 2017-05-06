@@ -1,6 +1,5 @@
-# <center> **COMP352Final**
-### <center>Final Project for CS352: Computer Networks
-<center> **Authors** : Ashir Borah and Daniel Ngo  
+## Final Project for CS352: Computer Networks
+**Authors** : Ashir Borah and Daniel Ngo  
 Parts of code used for COMP 352: Computer Networks (2017, Dickinson College)  
 **Instructor** : Professor Farhan Siddiqui</center>
 
