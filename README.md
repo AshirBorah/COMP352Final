@@ -1,8 +1,8 @@
-# <center>**COMP352Final**
+# <center> **COMP352Final**
 ### <center>Final Project for CS352: Computer Networks
-<center>**Authors**: Ashir Borah and Daniel Ngo  
+<center> **Authors** : Ashir Borah and Daniel Ngo  
 Parts of code used for COMP 352: Computer Networks (2017, Dickinson College)  
-**Instructor**: Professor Farhan Siddiqui</center>
+**Instructor** : Professor Farhan Siddiqui</center>
 
 
 ### Introduction
@@ -34,3 +34,5 @@ The protocols used is TCP/IP protocol.
 The project in its current state runs from the command line/Terminal. The server needs to be started before running the clients. The usages is:
 - Client: webserver address webserver port number
 - Server: port number
+
+Note: The sound effects and the wordlist were taken from the Internet and the authors do not claim authorship of the same.
